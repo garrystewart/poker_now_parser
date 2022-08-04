@@ -1,0 +1,11 @@
+﻿@model PNP.ViewModels.HomeVM
+
+@{
+    ViewData["Title"] = "Home";
+}
+
+<form asp-action="Index">
+    <label asp-for="Id"></label>
+    <input asp-for="Id" />
+    <button type="submit">Submit</button>
+</form>

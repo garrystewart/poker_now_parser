@@ -1,0 +1,62 @@
+﻿@model PNP.ViewModels.StatisticsVM
+
+@{
+    ViewData["Title"] = "Statistics";
+}
+
+<table>
+    <tbody>
+        <tr>
+            <th>Chips in play</th>
+            <td>@Model.ChipsInPlay</td>
+        </tr>
+        <tr>
+            <th>Hands played</th>
+            <td>@Model.HandsPlayed</td>
+        </tr>
+        <tr>
+            <th>Small blinds</th>
+            <td>@Model.SmallBlinds</td>
+        </tr>
+        <tr>
+            <th>Big blinds</th>
+            <td>@Model.BigBlinds</td>
+        </tr>
+        <tr>
+            <th>Uncalled bets</th>
+            <td>@Model.UncalledBets</td>
+        </tr>
+        <tr>
+            <th>Flops</th>
+            <td>@Model.Flops</td>
+        </tr>
+        <tr>
+            <th>Turns</th>
+            <td>@Model.Turns</td>
+        </tr>
+        <tr>
+            <th>Rivers</th>
+            <td>@Model.Rivers</td>
+        </tr>
+        <tr>
+            <th>Calls</th>
+            <td>@Model.Calls</td>
+        </tr>
+        <tr>
+            <th>Bets</th>
+            <td>@Model.Bets</td>
+        </tr>
+        <tr>
+            <th>Checks</th>
+            <td>@Model.Checks</td>
+        </tr>
+        <tr>
+            <th>AllIns</th>
+            <td>@Model.AllIns</td>
+        </tr>
+        <tr>
+            <th>Shows</th>
+            <td>@Model.Shows</td>
+        </tr>
+    </tbody>
+</table>
