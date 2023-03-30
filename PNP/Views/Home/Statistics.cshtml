@@ -4,59 +4,121 @@
     ViewData["Title"] = "Statistics";
 }
 
+<p>Last updated: <span id="lastUpdated">@Model.LastUpdated</span></p>
+
 <table>
     <tbody>
         <tr>
             <th>Chips in play</th>
-            <td>@Model.ChipsInPlay</td>
+            <td id="chipsInPlay">@Model.ChipsInPlay</td>
         </tr>
         <tr>
             <th>Hands played</th>
-            <td>@Model.HandsPlayed</td>
+            <td id="handsPlayed">@Model.HandsPlayed</td>
         </tr>
         <tr>
             <th>Small blinds</th>
-            <td>@Model.SmallBlinds</td>
+            <td id="smallBlinds">@Model.SmallBlinds</td>
         </tr>
         <tr>
             <th>Big blinds</th>
-            <td>@Model.BigBlinds</td>
+            <td id="bigBlinds">@Model.BigBlinds</td>
         </tr>
         <tr>
             <th>Uncalled bets</th>
-            <td>@Model.UncalledBets</td>
+            <td id="uncalledBets">@Model.UncalledBets</td>
         </tr>
         <tr>
             <th>Flops</th>
-            <td>@Model.Flops</td>
+            <td id="flops">@Model.Flops</td>
         </tr>
         <tr>
             <th>Turns</th>
-            <td>@Model.Turns</td>
+            <td id="turns">@Model.Turns</td>
         </tr>
         <tr>
             <th>Rivers</th>
-            <td>@Model.Rivers</td>
+            <td id="rivers">@Model.Rivers</td>
+        </tr>
+        <tr>
+            <th>Raises</th>
+            <td id="raises">@Model.Raises</td>
         </tr>
         <tr>
             <th>Calls</th>
-            <td>@Model.Calls</td>
+            <td id="calls">@Model.Calls</td>
         </tr>
         <tr>
             <th>Bets</th>
-            <td>@Model.Bets</td>
+            <td id="bets">@Model.Bets</td>
         </tr>
         <tr>
             <th>Checks</th>
-            <td>@Model.Checks</td>
+            <td id="checks">@Model.Checks</td>
         </tr>
         <tr>
             <th>AllIns</th>
-            <td>@Model.AllIns</td>
+            <td id="allIns">@Model.AllIns</td>
         </tr>
         <tr>
             <th>Shows</th>
-            <td>@Model.Shows</td>
+            <td id="shows">@Model.Shows</td>
         </tr>
     </tbody>
 </table>
+
+<table>
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Started At</th>
+            <th>Ended At</th>
+            <th>Duration</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (Hand hand in Model.Hands)
+        {
+            <tr>
+                <td>@hand.Number</td>
+                <td>@hand.StartedAt</td>
+                <td>@hand.EndedAt</td>
+                <td>@hand.Duration</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts{
+    <script src="~/js/signalr/dist/browser/signalr.min.js"></script>
+    <script src="~/js/statisticsHub.js"></script>
+
+    <script>
+        "use strict";
+
+        var connection = new signalR.HubConnectionBuilder().withUrl("/statisticsHub").build();
+
+        connection.on("ReceiveUpdates", function(json) {
+            $('#chipsInPlay').text(json.ChipsInPlay);
+            $('#handsPlayed').text(json.HandsPlayed);
+            $('#smallBlinds').text(json.SmallBlinds);
+            $('#bigBlinds').text(json.BigBlinds);
+            $('#uncalledBets').text(json.UncalledBets);
+            $('#flops').text(json.Flops);
+            $('#turns').text(json.Turns);
+            $('#rivers').text(json.Rivers);
+            $('#raises').text(json.Raises);
+            $('#calls').text(json.Calls);
+            $('#bets').text(json.Bets);
+            $('#checks').text(json.Checks);
+            $('#allIns').text(json.AllIns);
+            $('#shows').text(json.Shows);
+        });
+
+        connection.start().then(function() {
+
+        }).catch(function(err) {
+            return console.error(err.toString());
+        });
+    </script>
+}

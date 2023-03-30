@@ -1,47 +1,48 @@
 ﻿using PNP.Enums;
+using PNP.Models;
 using System.Text.RegularExpressions;
 
 namespace PNP.Services
 {
-    public class MessageService
+    public static class MessageService
     {
-        IDictionary<Regex, Message.Type> _regexEnumDictionary = new Dictionary<Regex, Message.Type>()
+        private static IDictionary<Regex, MessageType> _regexEnumDictionary = new Dictionary<Regex, MessageType>()
         {
             // admin functions
-            { new Regex("^The player \".* @ .*\" quits the game with a stack of [0-9]+.$"), Message.Type.ThePlayerQuitsTheGameWithAStack },
-            { new Regex("^The player \".* @ .*\" joined the game with a stack of [0-9]+.$"), Message.Type.ThePlayerJoinedTheGameWithAStackOf },
-            { new Regex("^The admin approved the player \".* @ .*\" participation with a stack of [0-9]+.$"), Message.Type.TheAdminApprovedThePlayerParticipationWithAStackOf },
-            { new Regex("^The player \".* @ .*\" requested a seat.$"), Message.Type.ThePlayerRequestedASeat },
-            { new Regex("^The player \".* @ .*\" stand up with the stack of [0-9]+.$"), Message.Type.ThePlayerStandUpWithTheStackOf },
-            { new Regex("^The player \".* @ .*\" sit back with the stack of [0-9]+.$"), Message.Type.ThePlayerSitBackWithTheStackOf },
+            { new Regex("^The player \".* @ .*\" quits the game with a stack of [0-9]+.$"), MessageType.ThePlayerQuitsTheGameWithAStack },
+            { new Regex("^The player \".* @ .*\" joined the game with a stack of [0-9]+.$"), MessageType.ThePlayerJoinedTheGameWithAStackOf },
+            { new Regex("^The admin approved the player \".* @ .*\" participation with a stack of [0-9]+.$"), MessageType.TheAdminApprovedThePlayerParticipationWithAStackOf },
+            { new Regex("^The player \".* @ .*\" requested a seat.$"), MessageType.ThePlayerRequestedASeat },
+            { new Regex("^The player \".* @ .*\" stand up with the stack of [0-9]+.$"), MessageType.ThePlayerStandUpWithTheStackOf },
+            { new Regex("^The player \".* @ .*\" sit back with the stack of [0-9]+.$"), MessageType.ThePlayerSitBackWithTheStackOf },
 
             // game actions
-            { new Regex("^-- starting hand #[0-9]+  \\(No Limit Texas Hold'em\\) \\(dealer: \".* @ .*\"\\) --$"), Message.Type.StartingHand },
-            { new Regex("^-- ending hand #[0-9]+ --$"), Message.Type.EndingHand },
-            { new Regex("^\".* @ .*\" posts a small blind of [0-9]+$"), Message.Type.PostsASmallBlindOf },
-            { new Regex("^\".* @ .*\" posts a big blind of [0-9]+$"), Message.Type.PostsABigBlindOf },
+            { new Regex("^-- starting hand #[0-9]+  \\(No Limit Texas Hold'em\\) \\(dealer: \".* @ .*\"\\) --$"), MessageType.StartingHand },
+            { new Regex("^-- ending hand #[0-9]+ --$"), MessageType.EndingHand },
+            { new Regex("^\".* @ .*\" posts a small blind of [0-9]+$"), MessageType.PostsASmallBlindOf },
+            { new Regex("^\".* @ .*\" posts a big blind of [0-9]+$"), MessageType.PostsABigBlindOf },
 
             // board
-            { new Regex("^Flop:  \\[.*\\]$"), Message.Type.Flop },
-            { new Regex("^Turn: .* \\[.*\\]$"), Message.Type.Turn },
-            { new Regex("^River: .* \\[.*\\]$"), Message.Type.River },
+            { new Regex("^Flop:  \\[.*\\]$"), MessageType.Flop },
+            { new Regex("^Turn: .* \\[.*\\]$"), MessageType.Turn },
+            { new Regex("^River: .* \\[.*\\]$"), MessageType.River },
 
             // player actions        
-            { new Regex("^\".* @ .*\" bets [0-9]+$"), Message.Type.Bets },
-            { new Regex("^\".* @ .*\" calls [0-9]+$"), Message.Type.Calls },
-            { new Regex("^\".* @ .*\" calls 2 and go all in$"), Message.Type.CallsAndGoAllIn },
-            { new Regex("^\".* @ .*\" checks$"), Message.Type.Checks },
-            { new Regex("^\".* @ .*\" raises to [0-9]+$"), Message.Type.RaisesTo },
+            { new Regex("^\".* @ .*\" bets [0-9]+$"), MessageType.Bets },
+            { new Regex("^\".* @ .*\" calls [0-9]+$"), MessageType.Calls },
+            { new Regex("^\".* @ .*\" calls 2 and go all in$"), MessageType.CallsAndGoAllIn },
+            { new Regex("^\".* @ .*\" checks$"), MessageType.Checks },
+            { new Regex("^\".* @ .*\" raises to [0-9]+$"), MessageType.RaisesTo },
 
             // results
-            { new Regex("^Player stacks: #[0-9]+ \".* @ .*\" \\([0-9]+\\).*$"), Message.Type.PlayerStacks },
-            { new Regex("^\".* @ .*\" collected [0-9]+ from pot with .* \\(combination: .*\\)$"), Message.Type.CollectedFromPotWith },
-            { new Regex("^\".* @ .*\" shows a .*.$"), Message.Type.ShowsA },
-            { new Regex("^Uncalled bet of [0-9]+ returned to \".* @ .*\"$"), Message.Type.UncalledBetOfReturnedTo },
-            { new Regex("^Your hand is .*$"), Message.Type.YourHandIs }
+            { new Regex("^Player stacks: #[0-9]+ \".* @ .*\" \\([0-9]+\\).*$"), MessageType.PlayerStacks },
+            { new Regex("^\".* @ .*\" collected [0-9]+ from pot with .* \\(combination: .*\\)$"), MessageType.CollectedFromPotWith },
+            { new Regex("^\".* @ .*\" shows a .*.$"), MessageType.ShowsA },
+            { new Regex("^Uncalled bet of [0-9]+ returned to \".* @ .*\"$"), MessageType.UncalledBetOfReturnedTo },
+            { new Regex("^Your hand is .*$"), MessageType.YourHandIs }
         };
 
-        public Message.Type GetMessageType(string message)
+        public static MessageType GetMessageType(string message)
         {
             foreach (var keyValuePair in _regexEnumDictionary)
             {
@@ -54,23 +55,71 @@ namespace PNP.Services
             throw new NotImplementedException($"{message} is not implemented");
         }
 
-        public int GetTotalStack(string message)
+        public static IEnumerable<JSON.Log> GetLogsByMessageType(MessageType messageType, JSON json)
         {
-            // Player stacks: #4 \"asd @ 89BxM1Wz6Q\" (122) | #6 \"Test @ 7dHPQQOOVK\" (123)
-            // We're after the total of everything in brackets
+            return json.Logs.Where(l => GetRegex(messageType).IsMatch(l.Message)).ToList();
+        }
 
-            int totalStack = 0;
+        public static Regex GetRegex(MessageType messageType)
+        {
+            return _regexEnumDictionary.Single(r => r.Value == messageType).Key;
+        }
 
-            Regex regex = new Regex("\\([0-9]+\\)"); // (122)
+        public enum MessageType
+        {
+            ThePlayerQuitsTheGameWithAStack,
+            ThePlayerJoinedTheGameWithAStackOf,
+            TheAdminApprovedThePlayerParticipationWithAStackOf,
+            ThePlayerRequestedASeat,
+            ThePlayerStandUpWithTheStackOf,
+            ThePlayerSitBackWithTheStackOf,
 
-            MatchCollection matches = regex.Matches(message);
+            // game actions
+            StartingHand,
+            EndingHand,
+            PostsASmallBlindOf,
+            PostsABigBlindOf,
 
-            foreach (Match match in matches)
+            // board        
+            Flop,
+            Turn,
+            River,
+
+            // player actions        
+            Bets,
+            Calls,
+            CallsAndGoAllIn,
+            Checks,
+            RaisesTo,
+
+            // results
+            PlayerStacks,
+            CollectedFromPotWith,
+            ShowsA,
+            UncalledBetOfReturnedTo,
+            YourHandIs,
+        }
+
+        public static void ScanForMissingMessages(JSON json)
+        {
+            foreach (JSON.Log log in json.Logs)
             {
-                totalStack += Int32.Parse(match.Value.Substring(1, match.Value.Length - 2));
-            }
+                bool found = false;
 
-            return totalStack;
+                foreach (var keyValuePair in _regexEnumDictionary)
+                {
+                    if (keyValuePair.Key.IsMatch(log.Message))
+                    {
+                        found = true;
+                        continue;
+                    }
+
+                    if (!found)
+                    {
+                        throw new NotImplementedException($"No MessageType for message: {log.Message}");
+                    }
+                }
+            }
         }
     }
 }

@@ -4,14 +4,16 @@ namespace PNP.Models
 {
     public class JSON
     {
-        public IEnumerable<Log>? Logs { get; set; }
+        private IEnumerable<Log> _logs = new List<Log>();
+
+        public IEnumerable<Log> Logs { get => _logs.OrderByDescending(l => l.At); set => _logs = value; }
 
         public class Log
         {
             public DateTime At { get; set; }
-            
+
             [JsonPropertyName("msg")]
-            public string? Message { get; set; }
+            public string Message { get; set; } = string.Empty;
         }
     }
 }

@@ -3,6 +3,7 @@ using PNP.Models;
 using PNP.Services;
 using PNP.ViewModels;
 using System.Diagnostics;
+using static PNP.Services.ConnectionHostedService;
 
 namespace PNP.Controllers
 {
@@ -10,13 +11,16 @@ namespace PNP.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly HttpClient _httpClient;
-        private readonly MessageService _messageService;
+        private readonly ConnectionHostedService _connectionHostedService;
 
-        public HomeController(ILogger<HomeController> logger, HttpClient httpClient, MessageService messageService)
+        public HomeController(
+            ILogger<HomeController> logger, 
+            HttpClient httpClient,
+            ConnectionHostedService connectionHostedService)
         {
             _logger = logger;
             _httpClient = httpClient;
-            _messageService = messageService;
+            _connectionHostedService = connectionHostedService;
         }
 
         [HttpGet]
@@ -28,19 +32,11 @@ namespace PNP.Controllers
         [HttpPost]
         public IActionResult Index(string id)
         {
-            try
+            // add the id to the hosted service
+            if (!string.IsNullOrWhiteSpace(id))
             {
-                JSON? jsonResponse = _httpClient.GetFromJsonAsync<JSON>($"https://www.pokernow.club/games/{id}/log").Result;
-
-                foreach (JSON.Log log in jsonResponse.Logs)
-                {
-                    Debug.WriteLine(_messageService.GetMessageType(log.Message).ToString());
-                }
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+                _connectionHostedService.AddId(id);
+            }            
 
             return View();
         }
@@ -48,22 +44,30 @@ namespace PNP.Controllers
         [HttpGet]
         public IActionResult Statistics(string id)
         {
-            StatisticsVM model = new();
-
             try
             {
-                JSON? jsonResponse = _httpClient.GetFromJsonAsync<JSON>($"https://www.pokernow.club/games/{id}/log").Result;
+                Response? response = _connectionHostedService.GetResponse(id);
 
-                Game game = new(_messageService, jsonResponse);
+                if (response is not null)
+                {
+                    Game game = new(response.Json);
 
-                model.ChipsInPlay = game.ChipsInPlay;
+                    return View(new StatisticsVM(game, response));
+                }
+                else
+                {
+                    throw new Exception("response is null");
+                }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw ex;
+                throw;
             }
+        }
 
-            return View(model);
+        private JSON? GetLog(string id)
+        {
+            return _httpClient.GetFromJsonAsync<JSON>($"https://www.pokernow.club/games/{id}/log").Result;
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

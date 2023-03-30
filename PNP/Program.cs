@@ -1,11 +1,17 @@
+using PNP.Hubs;
+using PNP.Models;
 using PNP.Services;
+using PNP.ViewModels;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddHostedService<ConnectionHostedService>(provider => provider.GetService<ConnectionHostedService>());
 builder.Services.AddSingleton<HttpClient>();
-builder.Services.AddSingleton<MessageService>();
+builder.Services.AddSingleton<ConnectionHostedService>();
+
+builder.Services.AddSignalR();
 
 var app = builder.Build();
 
@@ -27,5 +33,7 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+app.MapHub<StatisticsHub>("/statisticsHub");
 
 app.Run();
